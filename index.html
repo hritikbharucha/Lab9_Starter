@@ -47,6 +47,13 @@
       width: 122px;
     }
   </style>
+
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "d0518dc925a945ac806f986cd0e45e18"
+    });
+  </script>
 </head>
 
 <body>
@@ -69,21 +76,22 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="log">Console Log</button>
+      <button id="error">Console Error</button>
+      <button id="count">Console Count</button>
+      <button id="warn">Console Warn</button>
+      <button id="assert">Console Assert</button>
+      <button id="clear">Console Clear</button>
+      <button id="dir">Console Dir</button>
+      <button id="dirxml">Console dirxml</button>
+      <button id="groupStart">Console Group Start</button>
+      <button id="groupEnd">Console Group End</button>
+      <button id="table">Console Table</button>
+      <button id="startTimer">Start Timer</button>
+      <button id="endTimer">End Timer</button>
+      <button id="trace">Console Trace</button>
+      <button id="triggerError">Trigger a Global Error</button>
+      <button id="triggerCustomError">Trigger a Custom Error</button>
     </section>
   </main>
 
@@ -102,7 +110,97 @@
 
     // Start your code here
     // You may move this JS to another file if you wish
+
+    document.querySelector('#log').addEventListener('click', () => console.log('This is a log message'));
+    document.querySelector('#error').addEventListener('click', () => console.error('This is an error message'));
+    document.querySelector('#count').addEventListener('click', () => console.count('Count button clicked'));
+    document.querySelector('#warn').addEventListener('click', () => console.warn('This is a warning message'));
+    document.querySelector('#assert').addEventListener('click', () => {
+      const number = 2;
+      const condition = (number === 3);
+      console.assert(condition, {number: number, errormsg: "Number doesn't equal 3" });
+    });  
+    document.querySelector('#clear').addEventListener('click', () => console.clear());
+    document.querySelector('#dir').addEventListener('click', () => console.dir(document.body));
+    document.querySelector('#dirxml').addEventListener('click', () => console.dirxml(document.body));
+    document.querySelector('#groupStart').addEventListener('click', () => {
+      console.group('Grouped Messages');
+      console.log('Message inside group');
+    });
+    document.querySelector('#groupEnd').addEventListener('click', () => console.groupEnd());
+    document.querySelector('#table').addEventListener('click', () => console.table([{name: "John", age: 25}, {name: "Jane", age: 22}]));
+    document.querySelector('#startTimer').addEventListener('click', () => console.time('Timer'));
+    document.querySelector('#endTimer').addEventListener('click', () => console.timeEnd('Timer'));
+    
+    function traceFunction() {
+      function deepest() {
+        console.trace('Trace button clicked');
+      }
+
+      function deeper() {
+        deepest();
+      }
+
+      function deep() {
+        deeper();
+      }
+
+      deep();
+    }
+
+    document.querySelector('#trace').addEventListener('click', traceFunction);
+
+    document.querySelector('#calculate').addEventListener('click', (e) => {
+      e.preventDefault();
+      let output = document.querySelector('output');
+      let firstNum = document.querySelector('#first-num').value;
+      let secondNum = document.querySelector('#second-num').value;
+      let operator = document.querySelector('#operator').value;
+      
+      try {
+        if (!firstNum || !secondNum) {
+          throw new Error('Both numbers are required.');
+        }
+        let result = eval(`${firstNum} ${operator} ${secondNum}`);
+        if (isNaN(result)) {
+          throw new Error('Calculation error.');
+        }
+        output.innerHTML = result;
+      } catch (error) {
+        console.error('Error:', error.message);
+        output.innerHTML = 'Error: ' + error.message;
+      } finally {
+        console.log('Calculation attempted.');
+      }
+    });
+
+    class CustomError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "CustomError";
+      }
+    }
+
+    document.querySelector('#triggerCustomError').addEventListener('click', () => {
+      try {
+        throw new CustomError('This is a custom error');
+      } catch (error) {
+        console.error(error.name + ': ' + error.message);
+      }
+    });
+
+    document.querySelector('#triggerError').addEventListener('click', () => {
+      // Trigger a global error
+      nonexistentFunction();
+    });
+
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log('Global error caught: ', message);
+      // Optionally, send this error to a server for logging
+    };
+
   </script>
+                        
 </body>
 
 </html>
